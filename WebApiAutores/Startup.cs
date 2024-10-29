@@ -17,6 +17,7 @@ public class Startup
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
+    services.AddControllers();
 
   }
 
@@ -30,5 +31,11 @@ public class Startup
     }
 
     app.UseHttpsRedirection();
+    app.UseRouting();
+    app.UseAuthorization();
+    app.UseEndpoints(endpoints =>
+    {
+      endpoints.MapControllers();
+    });
   }
 }
