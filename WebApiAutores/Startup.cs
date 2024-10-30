@@ -1,4 +1,5 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApiAutores;
 
@@ -16,6 +17,9 @@ public class Startup
     // Add services to the container.
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     services.AddControllers();
+    services.AddDbContext<ApplicationDBContext>(options =>
+      options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+    );
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
 
