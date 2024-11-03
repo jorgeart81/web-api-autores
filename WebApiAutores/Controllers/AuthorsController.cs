@@ -19,7 +19,6 @@ public class AuthorsController(ApplicationDBContext context) : ControllerBase
   public async Task<ActionResult<List<Author>>> GetById(int id)
   {
     var author = await context.Authors.FindAsync(id);
-
     if (author == null) return NotFound();
 
     return Ok(author);
@@ -44,5 +43,17 @@ public class AuthorsController(ApplicationDBContext context) : ControllerBase
     await context.SaveChangesAsync();
 
     return Ok();
+  }
+
+  [HttpDelete("{id:int}")]
+  public async Task<ActionResult> Delete(int id)
+  {
+    var existingAuthor = await context.Authors.FindAsync(id);
+    if (existingAuthor == null) return NotFound();
+
+    context.Remove(existingAuthor);
+    await context.SaveChangesAsync();
+
+    return NoContent();
   }
 }
