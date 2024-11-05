@@ -12,7 +12,7 @@ public class AuthorsController(ApplicationDBContext context) : ControllerBase
   [HttpGet]
   public async Task<ActionResult<List<Author>>> Get()
   {
-    return await context.Authors.ToListAsync();
+    return await context.Authors.Include(a => a.Books).ToListAsync();
   }
 
   [HttpGet("{id:int}")]

@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebApiAutores;
@@ -16,7 +17,7 @@ public class Startup
   {
     // Add services to the container.
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-    services.AddControllers();
+    services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
     services.AddDbContext<ApplicationDBContext>(options =>
       options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
     );
