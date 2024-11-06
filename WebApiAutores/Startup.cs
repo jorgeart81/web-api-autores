@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using WebApiAutores.Services;
 
 namespace WebApiAutores;
 
@@ -21,9 +22,16 @@ public class Startup
     services.AddDbContext<ApplicationDBContext>(options =>
       options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
     );
+
+    // Custom services
+    services.AddTransient<IService, ServiceA>();
+
+    services.AddTransient<TransientService>();
+    services.AddScoped<ScopedService>();
+    services.AddSingleton<SingletonService>();
+
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
-
   }
 
   public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
