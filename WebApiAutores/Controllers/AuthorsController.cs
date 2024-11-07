@@ -1,4 +1,5 @@
 using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Entities;
@@ -61,6 +62,7 @@ public class AuthorsController(ApplicationDBContext context, IService service, T
 
   [HttpGet("GUID")]
   [ResponseCache(Duration = 10)]
+  // [Authorize]
   public ActionResult GetGuids()
   {
     service.PerformTask();

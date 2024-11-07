@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Middlewares;
 using WebApiAutores.Services;
@@ -32,6 +33,7 @@ public class Startup
     services.AddSingleton<SingletonService>();
 
     services.AddResponseCaching();
+    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
