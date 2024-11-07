@@ -21,7 +21,12 @@ public class Startup
   {
     // Add services to the container.
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-    services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+    services.AddControllers(options =>
+    {
+      // Global filter
+      options.Filters.Add(typeof(ExceptionFilter));
+    }).AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
     services.AddDbContext<ApplicationDBContext>(options =>
       options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
     );

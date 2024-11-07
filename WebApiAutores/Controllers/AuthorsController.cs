@@ -67,6 +67,7 @@ public class AuthorsController(ApplicationDBContext context, IService service, T
   // [Authorize]
   public ActionResult GetGuids()
   {
+    // throw new NotImplementedException();
     service.PerformTask();
     return Ok(new
     {
