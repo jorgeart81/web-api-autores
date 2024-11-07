@@ -38,6 +38,7 @@ public class Startup
     services.AddScoped<ScopedService>();
     services.AddSingleton<SingletonService>();
     services.AddTransient<MyActionFilter>();
+    services.AddHostedService<WriteToFile>();
 
     services.AddResponseCaching();
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
