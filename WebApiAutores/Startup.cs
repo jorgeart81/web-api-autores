@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using WebApiAutores.Middlewares;
 using WebApiAutores.Services;
 
 namespace WebApiAutores;
@@ -37,6 +38,10 @@ public class Startup
   public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
   {
     // Configure the HTTP request pipeline.
+    
+    // app.UseMiddleware<LoggerHttpResponseMiddleware>();
+    app.UseLoggerHttpResponse();
+
     if (env.IsDevelopment())
     {
       app.UseSwagger();
