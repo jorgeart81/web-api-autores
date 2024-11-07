@@ -31,6 +31,8 @@ public class Startup
     services.AddScoped<ScopedService>();
     services.AddSingleton<SingletonService>();
 
+    services.AddResponseCaching();
+
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
   }
@@ -38,7 +40,7 @@ public class Startup
   public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
   {
     // Configure the HTTP request pipeline.
-    
+
     // app.UseMiddleware<LoggerHttpResponseMiddleware>();
     app.UseLoggerHttpResponse();
 
@@ -50,6 +52,9 @@ public class Startup
 
     app.UseHttpsRedirection();
     app.UseRouting();
+
+    app.UseResponseCaching();
+
     app.UseAuthorization();
     app.UseEndpoints(endpoints =>
     {

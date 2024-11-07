@@ -60,6 +60,7 @@ public class AuthorsController(ApplicationDBContext context, IService service, T
   }
 
   [HttpGet("GUID")]
+  [ResponseCache(Duration = 10)]
   public ActionResult GetGuids()
   {
     service.PerformTask();
