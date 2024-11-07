@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Entities;
+using WebApiAutores.Filters;
 using WebApiAutores.Services;
 
 namespace WebApiAutores.Controllers;
@@ -61,7 +62,8 @@ public class AuthorsController(ApplicationDBContext context, IService service, T
   }
 
   [HttpGet("GUID")]
-  [ResponseCache(Duration = 10)]
+  // [ResponseCache(Duration = 10)]
+  [ServiceFilter(typeof(MyActionFilter))]
   // [Authorize]
   public ActionResult GetGuids()
   {

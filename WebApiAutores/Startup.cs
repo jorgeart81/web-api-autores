@@ -2,6 +2,7 @@ using System;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using WebApiAutores.Filters;
 using WebApiAutores.Middlewares;
 using WebApiAutores.Services;
 
@@ -31,6 +32,7 @@ public class Startup
     services.AddTransient<TransientService>();
     services.AddScoped<ScopedService>();
     services.AddSingleton<SingletonService>();
+    services.AddTransient<MyActionFilter>();
 
     services.AddResponseCaching();
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
