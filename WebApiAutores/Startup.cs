@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Filters;
 using WebApiAutores.Middlewares;
-using WebApiAutores.Services;
 
 namespace WebApiAutores;
 
@@ -31,16 +30,6 @@ public class Startup
       options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
     );
 
-    // Custom services
-    services.AddTransient<IService, ServiceA>();
-
-    services.AddTransient<TransientService>();
-    services.AddScoped<ScopedService>();
-    services.AddSingleton<SingletonService>();
-    services.AddTransient<MyActionFilter>();
-    services.AddHostedService<WriteToFile>();
-
-    services.AddResponseCaching();
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
     services.AddEndpointsApiExplorer();
@@ -62,8 +51,6 @@ public class Startup
 
     app.UseHttpsRedirection();
     app.UseRouting();
-
-    app.UseResponseCaching();
 
     app.UseAuthorization();
     app.UseEndpoints(endpoints =>

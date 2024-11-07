@@ -9,24 +9,24 @@ namespace WebApiAutores.Controllers
     [ApiController]
     public class BooksController(ApplicationDBContext context) : ControllerBase
     {
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<Book>> Get(int id)
-        {
-            var book = await context.Books.Include(b => b.Author).FirstOrDefaultAsync(b => b.Id == id);
-            if (book == null) return NotFound();
+        // [HttpGet("{id:int}")]
+        // public async Task<ActionResult<Book>> Get(int id)
+        // {
+        //     var book = await context.Books.Include(b => b.Author).FirstOrDefaultAsync(b => b.Id == id);
+        //     if (book == null) return NotFound();
 
-            return Ok(book);
-        }
+        //     return Ok(book);
+        // }
 
-        [HttpPost]
-        public async Task<ActionResult<Book>> Post(Book book)
-        {
-            var existingAuthor = await context.Authors.AnyAsync(a => a.Id == book.AuthorId);
-            if (!existingAuthor) return BadRequest($"author with id:{book.AuthorId} does not exist");
+        // [HttpPost]
+        // public async Task<ActionResult<Book>> Post(Book book)
+        // {
+        //     var existingAuthor = await context.Authors.AnyAsync(a => a.Id == book.AuthorId);
+        //     if (!existingAuthor) return BadRequest($"author with id:{book.AuthorId} does not exist");
 
-            context.Add(book);
-            await context.SaveChangesAsync();
-            return Ok();
-        }
+        //     context.Add(book);
+        //     await context.SaveChangesAsync();
+        //     return Ok();
+        // }
     }
 }
