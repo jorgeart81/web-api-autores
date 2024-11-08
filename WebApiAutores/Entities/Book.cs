@@ -10,6 +10,6 @@ public class Book
 
   [Required]
   [FirstCapitalLetter]
-  [StringLength(maximumLength: 120)]
+  [StringLength(maximumLength: 255)]
   public required string Title { get; set; }
 }
