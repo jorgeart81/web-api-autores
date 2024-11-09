@@ -13,18 +13,27 @@ namespace WebApiAutores.Controllers;
 public class AuthorsController(ApplicationDBContext context, IMapper mapper) : ControllerBase
 {
   [HttpGet]
-  public async Task<ActionResult<List<Author>>> Get()
+  public async Task<ActionResult<List<AuthorDTO>>> Get()
   {
-    return await context.Authors.ToListAsync();
+    var authors = await context.Authors.ToListAsync();
+    return Ok(mapper.Map<List<AuthorDTO>>(authors));
   }
 
   [HttpGet("{id:int}")]
-  public async Task<ActionResult<List<Author>>> GetById(int id)
+  public async Task<ActionResult<AuthorDTO>> GetById(int id)
   {
     var author = await context.Authors.FindAsync(id);
     if (author == null) return NotFound();
 
-    return Ok(author);
+    return Ok(mapper.Map<AuthorDTO>(author));
+  }
+
+  [HttpGet("{name}")]
+  public async Task<ActionResult<List<AuthorDTO>>> GetByName(string name)
+  {
+    var authors = await context.Authors.Where(a => a.Name.Contains(name)).ToListAsync();
+
+    return Ok(mapper.Map<List<AuthorDTO>>(authors));
   }
 
   [HttpPost]
@@ -34,7 +43,8 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
 
     context.Add(author);
     await context.SaveChangesAsync();
-    return Ok();
+
+    return Created();
   }
 
   [HttpPut("{id:int}")]
