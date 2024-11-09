@@ -1,14 +1,16 @@
 using System;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApiAutores.DTOs;
 using WebApiAutores.Entities;
 
 namespace WebApiAutores.Controllers;
 
 [ApiController]
 [Route("api/authors")]
-public class AuthorsController(ApplicationDBContext context) : ControllerBase
+public class AuthorsController(ApplicationDBContext context, IMapper mapper) : ControllerBase
 {
   [HttpGet]
   public async Task<ActionResult<List<Author>>> Get()
@@ -26,8 +28,10 @@ public class AuthorsController(ApplicationDBContext context) : ControllerBase
   }
 
   [HttpPost]
-  public async Task<ActionResult<Author>> Post(Author author)
+  public async Task<ActionResult<Author>> Post(CreateAuthorDTO authorDTO)
   {
+    var author = mapper.Map<Author>(authorDTO);
+
     context.Add(author);
     await context.SaveChangesAsync();
     return Ok();
