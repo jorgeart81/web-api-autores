@@ -11,5 +11,7 @@ public class AutoMapperProfiles : Profile
   {
     CreateMap<CreateAuthorDTO, Author>();
     CreateMap<Author, AuthorDTO>();
+    CreateMap<CreateBookDTO, Book>();
+    CreateMap<Book, BookDTO>();
   }
 }
