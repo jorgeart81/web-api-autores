@@ -10,4 +10,7 @@ public class CreateBookDTO
   [FirstCapitalLetter]
   [StringLength(maximumLength: 255)]
   public required string Title { get; set; }
+
+  [Required]
+  public required List<int> AuthorsId { get; set; }
 }
