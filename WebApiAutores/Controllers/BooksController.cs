@@ -23,9 +23,17 @@ namespace WebApiAutores.Controllers
         [HttpPost]
         public async Task<ActionResult<Book>> Post(CreateBookDTO bookDTO)
         {
-            // var existingAuthor = await context.Authors.AnyAsync(a => a.Id == book.AuthorId);
-            // if (!existingAuthor) return BadRequest($"author with id:{book.AuthorId} does not exist");
+            var authorsId = await context.Authors
+                .Where(a => bookDTO.AuthorsId.Contains(a.Id)).Select(a => a.Id).ToListAsync();
+
+            if (bookDTO.AuthorsId.Count != authorsId.Count) return BadRequest("One of the submitted authors does not exist");
+
             var book = mapper.Map<Book>(bookDTO);
+
+            for (int i = 0; i < book.AuthorsBooks.Count; i++)
+            {
+                book.AuthorsBooks[i].Order = i;
+            }
 
             context.Add(book);
             await context.SaveChangesAsync();
