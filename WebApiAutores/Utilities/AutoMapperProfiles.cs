@@ -11,13 +11,15 @@ public class AutoMapperProfiles : Profile
   public AutoMapperProfiles()
   {
     CreateMap<CreateAuthorDTO, Author>();
-    CreateMap<Author, AuthorDTO>()
+    CreateMap<Author, AuthorDTO>();
+    CreateMap<Author, AuthorDTOWithBooks>()
       .ForMember(authorDTO => authorDTO.Books, options => options.MapFrom(MapAuthorDTOBooks));
 
     CreateMap<CreateBookDTO, Book>()
       .ForMember(book => book.AuthorsBooks, options => options.MapFrom(MapAuthorsBooks));
 
-    CreateMap<Book, BookDTO>()
+    CreateMap<Book, BookDTO>();
+    CreateMap<Book, BookDTOWithAuthors>()
       .ForMember(bookDTO => bookDTO.Authors, options => options.MapFrom(MapBookDTOAuthors));
 
     CreateMap<CreateCommentDTO, Comment>();
@@ -34,7 +36,8 @@ public class AutoMapperProfiles : Profile
     {
       if (authorBook.Book == null) continue;
 
-      result.Add(new BookDTO(){
+      result.Add(new BookDTO()
+      {
         Id = authorBook.BookId,
         Title = authorBook.Book.Title
       });

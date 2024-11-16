@@ -20,7 +20,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   }
 
   [HttpGet("{id:int}")]
-  public async Task<ActionResult<AuthorDTO>> GetById(int id)
+  public async Task<ActionResult<AuthorDTOWithBooks>> GetById(int id)
   {
     var author = await context.Authors
         .Include(a => a.AuthorsBooks)
@@ -29,7 +29,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
 
     if (author == null) return NotFound();
 
-    return Ok(mapper.Map<AuthorDTO>(author));
+    return Ok(mapper.Map<AuthorDTOWithBooks>(author));
   }
 
   [HttpGet("{name}")]
