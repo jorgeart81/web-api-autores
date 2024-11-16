@@ -1,5 +1,6 @@
 using System;
 using AutoMapper;
+using Microsoft.Extensions.Options;
 using WebApiAutores.DTOs;
 using WebApiAutores.Entities;
 
@@ -10,7 +11,8 @@ public class AutoMapperProfiles : Profile
   public AutoMapperProfiles()
   {
     CreateMap<CreateAuthorDTO, Author>();
-    CreateMap<Author, AuthorDTO>();
+    CreateMap<Author, AuthorDTO>()
+      .ForMember(authorDTO => authorDTO.Books, options => options.MapFrom(MapAuthorDTOBooks));
 
     CreateMap<CreateBookDTO, Book>()
       .ForMember(book => book.AuthorsBooks, options => options.MapFrom(MapAuthorsBooks));
@@ -20,6 +22,25 @@ public class AutoMapperProfiles : Profile
 
     CreateMap<CreateCommentDTO, Comment>();
     CreateMap<Comment, CommentDTO>();
+  }
+
+  private List<BookDTO> MapAuthorDTOBooks(Author author, AuthorDTO authorDTO)
+  {
+    var result = new List<BookDTO>();
+
+    if (author.AuthorsBooks == null) return result;
+
+    foreach (var authorBook in author.AuthorsBooks)
+    {
+      if (authorBook.Book == null) continue;
+
+      result.Add(new BookDTO(){
+        Id = authorBook.BookId,
+        Title = authorBook.Book.Title
+      });
+    }
+
+    return result;
   }
 
   private List<AuthorBook> MapAuthorsBooks(CreateBookDTO bookDTO, Book book)
@@ -49,7 +70,7 @@ public class AutoMapperProfiles : Profile
       result.Add(new AuthorDTO()
       {
         Id = authorBook.AuthorId,
-        Name = authorBook.Author.Name
+        Name = authorBook.Author.Name,
       });
 
     }
