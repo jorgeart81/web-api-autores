@@ -22,7 +22,11 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   [HttpGet("{id:int}")]
   public async Task<ActionResult<AuthorDTO>> GetById(int id)
   {
-    var author = await context.Authors.FindAsync(id);
+    var author = await context.Authors
+        .Include(a => a.AuthorsBooks)
+        .ThenInclude(ab => ab.Book)
+        .FirstOrDefaultAsync(a => a.Id == id);
+
     if (author == null) return NotFound();
 
     return Ok(mapper.Map<AuthorDTO>(author));
