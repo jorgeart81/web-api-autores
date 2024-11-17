@@ -48,5 +48,11 @@ namespace WebApiAutores.Controllers
 
             return CreatedAtRoute("getBook", new { id = book.Id });
         }
+
+        // [HttpPut("{id:int}")]
+        // public async Task<ActionResult> Put(CreateBookDTO createBookDTO, int id)
+        // {
+
+        // }
     }
 }

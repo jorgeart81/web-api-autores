@@ -57,7 +57,6 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   public async Task<ActionResult> Put(CreateAuthorDTO createAuthorDTO, int id)
   {
     var existingAuthor = await context.Authors.AnyAsync(a => a.Id == id);
-
     if (!existingAuthor) return NotFound();
 
     var author = mapper.Map<Author>(createAuthorDTO);
@@ -73,7 +72,6 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   public async Task<ActionResult> Delete(int id)
   {
     var existingAuthor = await context.Authors.AnyAsync(a => a.Id == id);
-
     if (!existingAuthor) return NotFound();
 
     context.Remove(existingAuthor);
