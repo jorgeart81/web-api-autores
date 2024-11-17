@@ -11,7 +11,7 @@ namespace WebApiAutores.Controllers
     [ApiController]
     public class BooksController(ApplicationDBContext context, IMapper mapper) : ControllerBase
     {
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}", Name = "getBook")]
         public async Task<ActionResult<BookDTOWithAuthors>> Get(int id)
         {
             var book = await context.Books
@@ -27,14 +27,14 @@ namespace WebApiAutores.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Book>> Post(CreateBookDTO bookDTO)
+        public async Task<ActionResult<BookDTO>> Post(CreateBookDTO createBookDTO)
         {
             var authorsId = await context.Authors
-                .Where(a => bookDTO.AuthorsId.Contains(a.Id)).Select(a => a.Id).ToListAsync();
+                .Where(a => createBookDTO.AuthorsId.Contains(a.Id)).Select(a => a.Id).ToListAsync();
 
-            if (bookDTO.AuthorsId.Count != authorsId.Count) return BadRequest("One of the submitted authors does not exist");
+            if (createBookDTO.AuthorsId.Count != authorsId.Count) return BadRequest("One of the submitted authors does not exist");
 
-            var book = mapper.Map<Book>(bookDTO);
+            var book = mapper.Map<Book>(createBookDTO);
 
             for (int i = 0; i < book.AuthorsBooks.Count; i++)
             {
@@ -44,7 +44,9 @@ namespace WebApiAutores.Controllers
             context.Add(book);
             await context.SaveChangesAsync();
 
-            return Created();
+            var bookDTO = mapper.Map<BookDTO>(book);
+
+            return CreatedAtRoute("getBook", new { id = book.Id });
         }
     }
 }

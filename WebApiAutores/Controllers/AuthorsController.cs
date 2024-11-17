@@ -19,7 +19,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
     return Ok(mapper.Map<List<AuthorDTO>>(authors));
   }
 
-  [HttpGet("{id:int}")]
+  [HttpGet("{id:int}", Name = "getAuthorById")]
   public async Task<ActionResult<AuthorDTOWithBooks>> GetById(int id)
   {
     var author = await context.Authors
@@ -41,34 +41,40 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   }
 
   [HttpPost]
-  public async Task<ActionResult<Author>> Post(CreateAuthorDTO authorDTO)
+  public async Task<ActionResult<AuthorDTO>> Post(CreateAuthorDTO createAuthorDTO)
   {
-    var author = mapper.Map<Author>(authorDTO);
+    var author = mapper.Map<Author>(createAuthorDTO);
 
     context.Add(author);
     await context.SaveChangesAsync();
 
-    return Created();
+    var authorDTO = mapper.Map<AuthorDTO>(author);
+
+    return CreatedAtRoute("getAuthorById", new { id = author.Id }, authorDTO);
   }
 
   [HttpPut("{id:int}")]
-  public async Task<ActionResult<Author>> Put(Author author, int id)
+  public async Task<ActionResult> Put(CreateAuthorDTO createAuthorDTO, int id)
   {
-    var existingAuthor = await context.Authors.FindAsync(id);
-    if (existingAuthor == null) return NotFound();
+    var existingAuthor = await context.Authors.AnyAsync(a => a.Id == id);
 
-    existingAuthor.Name = author.Name;
-    context.Entry(existingAuthor).State = EntityState.Modified;
+    if (!existingAuthor) return NotFound();
+
+    var author = mapper.Map<Author>(createAuthorDTO);
+    author.Id = id;
+
+    context.Update(author);
     await context.SaveChangesAsync();
 
-    return Ok();
+    return NoContent();
   }
 
   [HttpDelete("{id:int}")]
   public async Task<ActionResult> Delete(int id)
   {
-    var existingAuthor = await context.Authors.FindAsync(id);
-    if (existingAuthor == null) return NotFound();
+    var existingAuthor = await context.Authors.AnyAsync(a => a.Id == id);
+
+    if (!existingAuthor) return NotFound();
 
     context.Remove(existingAuthor);
     await context.SaveChangesAsync();
