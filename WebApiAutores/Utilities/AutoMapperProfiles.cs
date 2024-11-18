@@ -17,10 +17,10 @@ public class AutoMapperProfiles : Profile
 
     CreateMap<CreateBookDTO, Book>()
       .ForMember(book => book.AuthorsBooks, options => options.MapFrom(MapAuthorsBooks));
-
-    CreateMap<Book, BookDTO>();
+    CreateMap<Book, BookDTO>().ReverseMap();
     CreateMap<Book, BookDTOWithAuthors>()
       .ForMember(bookDTO => bookDTO.Authors, options => options.MapFrom(MapBookDTOAuthors));
+    CreateMap<PatchBookDTO, Book>().ReverseMap();
 
     CreateMap<CreateCommentDTO, Comment>();
     CreateMap<Comment, CommentDTO>();

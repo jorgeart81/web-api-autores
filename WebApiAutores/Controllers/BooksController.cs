@@ -1,5 +1,7 @@
 using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.DTOs;
@@ -59,6 +61,27 @@ namespace WebApiAutores.Controllers
 
             SortBookAuthors(bookDB);
 
+            await context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> Patch(int id, JsonPatchDocument<PatchBookDTO> patchDocument)
+        {
+            if (patchDocument == null) return BadRequest();
+
+            var bookDB = await context.Books.FirstOrDefaultAsync(b => b.Id == id);
+            if (bookDB == null) return NotFound();
+
+            var bookDTO = mapper.Map<PatchBookDTO>(bookDB);
+
+            patchDocument.ApplyTo(bookDTO, ModelState);
+
+            var isValid = TryValidateModel(bookDTO);
+            if (!isValid) return BadRequest(ModelState);
+
+            mapper.Map(bookDTO, bookDB);
             await context.SaveChangesAsync();
 
             return NoContent();
