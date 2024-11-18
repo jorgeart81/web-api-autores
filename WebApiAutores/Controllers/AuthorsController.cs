@@ -71,10 +71,10 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   [HttpDelete("{id:int}")]
   public async Task<ActionResult> Delete(int id)
   {
-    var authorExists = await context.Authors.AnyAsync(a => a.Id == id);
-    if (!authorExists) return NotFound();
+    var author = await context.Authors.FirstOrDefaultAsync(a => a.Id == id);
+    if (author == null) return NotFound();
 
-    context.Remove(authorExists);
+    context.Remove(author);
     await context.SaveChangesAsync();
 
     return NoContent();
