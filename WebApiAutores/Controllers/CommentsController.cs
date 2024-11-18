@@ -58,11 +58,11 @@ namespace WebApiAutores.Controllers
         {
             if (!await BookExists(bookId)) return NotFound($"Book with ID {bookId} not found");
 
-            var existingComment = await context.Comments
+            var commentExists = await context.Comments
                 .Where(c => c.BookId == bookId)
                 .AnyAsync(c => c.Id == id);
 
-            if (!existingComment) return NotFound($"Comment with ID {id} not found for Book ID {bookId}");
+            if (!commentExists) return NotFound($"Comment with ID {id} not found for Book ID {bookId}");
 
             var comment = mapper.Map<Comment>(createCommentDTO);
             comment.Id = id;

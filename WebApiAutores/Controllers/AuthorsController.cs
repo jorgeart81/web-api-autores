@@ -56,8 +56,8 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   [HttpPut("{id:int}")]
   public async Task<ActionResult> Put(CreateAuthorDTO createAuthorDTO, int id)
   {
-    var existingAuthor = await context.Authors.AnyAsync(a => a.Id == id);
-    if (!existingAuthor) return NotFound();
+    var authorExists = await context.Authors.AnyAsync(a => a.Id == id);
+    if (!authorExists) return NotFound();
 
     var author = mapper.Map<Author>(createAuthorDTO);
     author.Id = id;
@@ -71,10 +71,10 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   [HttpDelete("{id:int}")]
   public async Task<ActionResult> Delete(int id)
   {
-    var existingAuthor = await context.Authors.AnyAsync(a => a.Id == id);
-    if (!existingAuthor) return NotFound();
+    var authorExists = await context.Authors.AnyAsync(a => a.Id == id);
+    if (!authorExists) return NotFound();
 
-    context.Remove(existingAuthor);
+    context.Remove(authorExists);
     await context.SaveChangesAsync();
 
     return NoContent();
