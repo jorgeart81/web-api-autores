@@ -43,7 +43,7 @@ namespace WebApiAutores.Controllers
 
             var bookDTO = mapper.Map<BookDTO>(book);
 
-            return CreatedAtRoute("getBook", new { id = book.Id });
+            return CreatedAtRoute("getBook", new { id = book.Id }, bookDTO);
         }
 
         [HttpPut("{id:int}")]
