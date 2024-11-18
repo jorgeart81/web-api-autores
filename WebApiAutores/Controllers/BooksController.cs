@@ -87,6 +87,18 @@ namespace WebApiAutores.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var book = await context.Books.FirstOrDefaultAsync(b => b.Id == id);
+            if (book == null) return NotFound();
+
+            context.Remove(book);
+            await context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         private void SortBookAuthors(Book book)
         {
             if (book.AuthorsBooks == null) return;
