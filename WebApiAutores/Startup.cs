@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Filters;
 using WebApiAutores.Middlewares;
@@ -35,6 +36,10 @@ public class Startup
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
     services.AddAutoMapper(typeof(Startup));
+
+    services.AddIdentity<IdentityUser, IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDBContext>()
+            .AddDefaultTokenProviders();
   }
 
   public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
