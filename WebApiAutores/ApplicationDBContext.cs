@@ -1,10 +1,11 @@
 using System;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Entities;
 
 namespace WebApiAutores;
 
-public class ApplicationDBContext : DbContext
+public class ApplicationDBContext : IdentityDbContext
 {
   public ApplicationDBContext(DbContextOptions options) : base(options)
   {
