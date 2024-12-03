@@ -11,7 +11,9 @@ namespace WebApiAutores.Controllers;
 
 [ApiController]
 [Route("api/accounts")]
-public class AccountsController(UserManager<IdentityUser> userManager, IConfiguration configuration) : ControllerBase
+public class AccountsController(UserManager<IdentityUser> userManager,
+    IConfiguration configuration,
+    SignInManager<IdentityUser> signInManager) : ControllerBase
 {
 
   [HttpPost("register")]
@@ -20,9 +22,20 @@ public class AccountsController(UserManager<IdentityUser> userManager, IConfigur
     var newUser = new IdentityUser { UserName = userCredentials.Email, Email = userCredentials.Email };
     var result = await userManager.CreateAsync(newUser, userCredentials.Password);
 
-    if (!result.Succeeded) return BadRequest(result.Errors);
+    if (result.Succeeded) return BuildToken(userCredentials);
 
-    return BuildToken(userCredentials);
+    return BadRequest(result.Errors);
+  }
+
+  [HttpPost("login")]
+  public async Task<ActionResult<AuthenticationResponse>> Login(UserCredentials userCredentials)
+  {
+    var result = await signInManager.PasswordSignInAsync(userCredentials.Email,
+        userCredentials.Password, isPersistent: false, lockoutOnFailure: false);
+
+    if (result.Succeeded) return BuildToken(userCredentials);
+
+    return BadRequest("Failed to login");
   }
 
   private AuthenticationResponse BuildToken(UserCredentials userCredentials)
