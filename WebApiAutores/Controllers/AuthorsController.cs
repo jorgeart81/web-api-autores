@@ -1,5 +1,6 @@
 using System;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,9 +11,11 @@ namespace WebApiAutores.Controllers;
 
 [ApiController]
 [Route("api/authors")]
+[Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
 public class AuthorsController(ApplicationDBContext context, IMapper mapper) : ControllerBase
 {
   [HttpGet]
+  [AllowAnonymous]
   public async Task<ActionResult<List<AuthorDTO>>> Get()
   {
     var authors = await context.Authors.ToListAsync();
