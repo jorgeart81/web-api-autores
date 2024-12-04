@@ -41,8 +41,7 @@ public class Startup
               ValidateAudience = false,
               ValidateLifetime = true,
               ValidateIssuerSigningKey = true,
-              IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(Configuration.GetConnectionString("JWTKey"))),
+              IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWTKey"]!)),
               ClockSkew = TimeSpan.Zero
             });
 
