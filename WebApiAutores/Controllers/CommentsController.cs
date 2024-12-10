@@ -1,5 +1,8 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.DTOs;
@@ -9,7 +12,8 @@ namespace WebApiAutores.Controllers
 {
     [Route("api/books/{bookId:int}/comments")]
     [ApiController]
-    public class CommentsController(ApplicationDBContext context, IMapper mapper) : ControllerBase
+    public class CommentsController(ApplicationDBContext context, IMapper mapper,
+        UserManager<IdentityUser> userManager) : ControllerBase
     {
         private async Task<bool> BookExists(int bookId) => await context.Books.AnyAsync(b => b.Id == bookId);
 
@@ -38,13 +42,24 @@ namespace WebApiAutores.Controllers
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<CommentDTO>> Post(int bookId, CreateCommentDTO createCommentDTO)
         {
+            var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
+            var email = emailClaim?.Value;
+            if (string.IsNullOrEmpty(email)) return Unauthorized();
+
+            var user = await userManager.FindByEmailAsync(email);
+            var userId = user?.Id;
+            if (userId == null) return Unauthorized();
+
+
             if (!await BookExists(bookId)) return NotFound($"Book with ID {bookId} not found");
 
             var comment = mapper.Map<Comment>(createCommentDTO);
 
             comment.BookId = bookId;
+            comment.UserId = userId;
             context.Add(comment);
             await context.SaveChangesAsync();
 
