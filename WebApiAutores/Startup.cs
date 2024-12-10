@@ -1,9 +1,11 @@
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApiAutores.Filters;
@@ -15,6 +17,9 @@ public class Startup
 {
   public Startup(IConfiguration configuration)
   {
+    // Clean up claims type mapping
+    JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
     Configuration = configuration;
   }
 
