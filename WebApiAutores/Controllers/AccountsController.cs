@@ -2,6 +2,8 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -22,7 +24,7 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     var newUser = new IdentityUser { UserName = userCredentials.Email, Email = userCredentials.Email };
     var result = await userManager.CreateAsync(newUser, userCredentials.Password);
 
-    if (result.Succeeded) return BuildToken(userCredentials);
+    if (result.Succeeded) return BuildToken(userCredentials, 20);
 
     return BadRequest(result.Errors);
   }
@@ -38,7 +40,24 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     return BadRequest("Failed to login");
   }
 
-  private AuthenticationResponse BuildToken(UserCredentials userCredentials)
+  [HttpGet("refreshToken")]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+  public ActionResult<AuthenticationResponse> RefreshToken()
+  {
+    var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
+    var email = emailClaim?.Value;
+    if (string.IsNullOrEmpty(email)) return Unauthorized();
+
+    var userCredentials = new UserCredentials()
+    {
+      Email = email,
+      Password = ""
+    };
+
+    return BuildToken(userCredentials);
+  }
+
+  private AuthenticationResponse BuildToken(UserCredentials userCredentials, double minutes = 10080)
   {
     var jwtKey = configuration["JWTKey"];
     if (jwtKey == null) return new AuthenticationResponse() { };
@@ -52,7 +71,7 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
     var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-    var expiration = DateTime.UtcNow.AddDays(30);
+    var expiration = DateTime.UtcNow.AddMinutes(minutes);
 
     var securityToken = new JwtSecurityToken(issuer: null, audience: null, claims: claims, expires: expiration, signingCredentials: creds);
 
