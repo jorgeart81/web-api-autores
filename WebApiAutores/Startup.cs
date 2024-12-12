@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApiAutores.Filters;
 using WebApiAutores.Middlewares;
+using WebApiAutores.Values;
 
 namespace WebApiAutores;
 
@@ -81,6 +82,11 @@ public class Startup
     services.AddIdentity<IdentityUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDBContext>()
             .AddDefaultTokenProviders();
+
+    services.AddAuthorization(options =>
+    {
+      options.AddPolicy(DefaultStrings.IsAdmin, policy => policy.RequireClaim("isAdmin"));
+    });
   }
 
   public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
