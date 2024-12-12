@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.DTOs;
 using WebApiAutores.Entities;
+using WebApiAutores.Values;
 
 namespace WebApiAutores.Controllers;
 
 [ApiController]
 [Route("api/authors")]
-[Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = DefaultStrings.IsAdmin)]
 public class AuthorsController(ApplicationDBContext context, IMapper mapper) : ControllerBase
 {
   [HttpGet]
