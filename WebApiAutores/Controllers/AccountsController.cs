@@ -14,8 +14,7 @@ namespace WebApiAutores.Controllers;
 [ApiController]
 [Route("api/accounts")]
 public class AccountsController(UserManager<IdentityUser> userManager,
-    IConfiguration configuration,
-    SignInManager<IdentityUser> signInManager) : ControllerBase
+    IConfiguration configuration, SignInManager<IdentityUser> signInManager) : ControllerBase
 {
 
   [HttpPost("register")]
@@ -24,7 +23,7 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     var newUser = new IdentityUser { UserName = userCredentials.Email, Email = userCredentials.Email };
     var result = await userManager.CreateAsync(newUser, userCredentials.Password);
 
-    if (result.Succeeded) return BuildToken(userCredentials, 20);
+    if (result.Succeeded) return await BuildToken(userCredentials, 20);
 
     return BadRequest(result.Errors);
   }
@@ -35,14 +34,14 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     var result = await signInManager.PasswordSignInAsync(userCredentials.Email,
         userCredentials.Password, isPersistent: false, lockoutOnFailure: false);
 
-    if (result.Succeeded) return BuildToken(userCredentials);
+    if (result.Succeeded) return await BuildToken(userCredentials);
 
     return BadRequest("Failed to login");
   }
 
   [HttpGet("refreshToken")]
   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-  public ActionResult<AuthenticationResponse> RefreshToken()
+  public async Task<ActionResult<AuthenticationResponse>> RefreshToken()
   {
     var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
     var email = emailClaim?.Value;
@@ -54,10 +53,10 @@ public class AccountsController(UserManager<IdentityUser> userManager,
       Password = ""
     };
 
-    return BuildToken(userCredentials);
+    return await BuildToken(userCredentials);
   }
 
-  private AuthenticationResponse BuildToken(UserCredentials userCredentials, double minutes = 10080)
+  private async Task<AuthenticationResponse> BuildToken(UserCredentials userCredentials, double minutes = 10080)
   {
     var jwtKey = configuration["JWTKey"];
     if (jwtKey == null) return new AuthenticationResponse() { };
@@ -66,6 +65,14 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     var claims = new List<Claim>() {
       new Claim("email", userCredentials.Email)
     };
+
+    var user = await userManager.FindByEmailAsync(userCredentials.Email);
+
+    if (user != null)
+    {
+      var claimsDb = await userManager.GetClaimsAsync(user);
+      claims.AddRange(claimsDb);
+    }
 
 
     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
@@ -80,5 +87,25 @@ public class AccountsController(UserManager<IdentityUser> userManager,
       Token = new JwtSecurityTokenHandler().WriteToken(securityToken),
       Expiration = expiration
     };
+  }
+
+  [HttpPost("make-admin")]
+  public async Task<ActionResult> MakeAdmin(EditAdminDTO editAdminDTO)
+  {
+    var user = await userManager.FindByEmailAsync(editAdminDTO.Email);
+    if (user == null) return BadRequest("The request could not be processed");
+
+    await userManager.AddClaimAsync(user, new Claim("isAdmin", "1"));
+    return NoContent();
+  }
+
+  [HttpPost("remove-admin")]
+  public async Task<ActionResult> RemoveAdmin(EditAdminDTO editAdminDTO)
+  {
+    var user = await userManager.FindByEmailAsync(editAdminDTO.Email);
+    if (user == null) return BadRequest("The request could not be processed");
+
+    await userManager.RemoveClaimAsync(user, new Claim("isAdmin", "1"));
+    return NoContent();
   }
 }
