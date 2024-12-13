@@ -87,6 +87,14 @@ public class Startup
     {
       options.AddPolicy(DefaultStrings.IsAdmin, policy => policy.RequireClaim("isAdmin"));
     });
+
+    services.AddCors(options =>
+    {
+      options.AddDefaultPolicy(builder =>
+      {
+        builder.WithOrigins("").AllowAnyMethod().AllowAnyHeader();
+      });
+    });
   }
 
   public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -104,6 +112,8 @@ public class Startup
 
     app.UseHttpsRedirection();
     app.UseRouting();
+
+    app.UseCors();
 
     app.UseAuthorization();
     app.UseEndpoints(endpoints =>
