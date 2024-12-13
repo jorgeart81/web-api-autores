@@ -88,6 +88,8 @@ public class Startup
       options.AddPolicy(DefaultStrings.IsAdmin, policy => policy.RequireClaim("isAdmin"));
     });
 
+    services.AddDataProtection();
+
     services.AddCors(options =>
     {
       options.AddDefaultPolicy(builder =>

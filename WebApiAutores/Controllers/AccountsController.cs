@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -14,8 +15,11 @@ namespace WebApiAutores.Controllers;
 [ApiController]
 [Route("api/accounts")]
 public class AccountsController(UserManager<IdentityUser> userManager,
-    IConfiguration configuration, SignInManager<IdentityUser> signInManager) : ControllerBase
+    IConfiguration configuration, SignInManager<IdentityUser> signInManager,
+    IDataProtectionProvider dataProtectionProvider) : ControllerBase
 {
+  private readonly IDataProtector dataProtector = dataProtectionProvider.CreateProtector("unique_and_secrect_value");
+
 
   [HttpPost("register")]
   public async Task<ActionResult<AuthenticationResponse>> Register(UserCredentials userCredentials)
