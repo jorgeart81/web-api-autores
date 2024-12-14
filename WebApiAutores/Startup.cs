@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApiAutores.Filters;
 using WebApiAutores.Middlewares;
+using WebApiAutores.Services;
 using WebApiAutores.Values;
 
 namespace WebApiAutores;
@@ -89,6 +90,7 @@ public class Startup
     });
 
     services.AddDataProtection();
+    services.AddTransient<HashService>();
 
     services.AddCors(options =>
     {
