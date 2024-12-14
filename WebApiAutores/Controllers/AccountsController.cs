@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using WebApiAutores.DTOs;
+using WebApiAutores.Services;
 
 namespace WebApiAutores.Controllers;
 
@@ -16,7 +17,7 @@ namespace WebApiAutores.Controllers;
 [Route("api/accounts")]
 public class AccountsController(UserManager<IdentityUser> userManager,
     IConfiguration configuration, SignInManager<IdentityUser> signInManager,
-    IDataProtectionProvider dataProtectionProvider) : ControllerBase
+    IDataProtectionProvider dataProtectionProvider, HashService hashService) : ControllerBase
 {
   private readonly IDataProtector dataProtector = dataProtectionProvider.CreateProtector("unique_and_secrect_value");
 
@@ -125,6 +126,20 @@ public class AccountsController(UserManager<IdentityUser> userManager,
       plainText = plainText,
       ciphertext = ciphertext,
       decryptedText = decryptedText
+    });
+  }
+
+  [HttpGet("hash/{plainText}")]
+  public ActionResult PerformHash(string plainText)
+  {
+    var result1 = hashService.Hash(plainText);
+    var result2 = hashService.Hash(plainText);
+
+    return Ok(new
+    {
+      PlainText = plainText,
+      Hash1 = result1,
+      Hash2 = result2
     });
   }
 }
