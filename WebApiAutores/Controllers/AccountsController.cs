@@ -112,4 +112,19 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     await userManager.RemoveClaimAsync(user, new Claim("isAdmin", "1"));
     return NoContent();
   }
+
+  [HttpGet("encrypt")]
+  public ActionResult Encrypt()
+  {
+    var plainText = "Encrypt text test";
+    var ciphertext = dataProtector.Protect(plainText);
+    var decryptedText = dataProtector.Unprotect(ciphertext);
+
+    return Ok(new
+    {
+      plainText = plainText,
+      ciphertext = ciphertext,
+      decryptedText = decryptedText
+    });
+  }
 }
