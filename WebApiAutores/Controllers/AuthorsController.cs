@@ -13,17 +13,44 @@ namespace WebApiAutores.Controllers;
 [ApiController]
 [Route("api/authors")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = DefaultStrings.IsAdmin)]
-public class AuthorsController(ApplicationDBContext context, IMapper mapper) : ControllerBase
+public class AuthorsController(ApplicationDBContext context, IMapper mapper,
+  IAuthorizationService authorizationService) : ControllerBase
 {
+  private void GenerateLinks(AuthorDTO authorDTO, bool isAdmin = false)
+  {
+    authorDTO.Links.Add(new DataHATEOAS(link: Url.Link("getAuthorById", new { id = authorDTO.Id }), description: "self", method: "GET"));
+    authorDTO.Links.Add(new DataHATEOAS(link: Url.Link("getAuthorByName", new { name = authorDTO.Name }), description: "self", method: "GET"));
+
+    if (isAdmin)
+    {
+      authorDTO.Links.Add(new DataHATEOAS(link: Url.Link("updateAuthor", new { id = authorDTO.Id }), description: "self", method: "PUT"));
+      authorDTO.Links.Add(new DataHATEOAS(link: Url.Link("deleteAuthor", new { id = authorDTO.Id }), description: "self", method: "DELETE"));
+    }
+  }
+
   [HttpGet(Name = "getAuthors")]
   [AllowAnonymous]
-  public async Task<ActionResult<List<AuthorDTO>>> Get()
+  public async Task<ActionResult<ResourceCollection<AuthorDTO>>> Get()
   {
     var authors = await context.Authors.ToListAsync();
-    return Ok(mapper.Map<List<AuthorDTO>>(authors));
+    var dtos = mapper.Map<List<AuthorDTO>>(authors);
+    var isAdmin = await authorizationService.AuthorizeAsync(User, "isAdmin");
+
+    dtos.ForEach(dto => GenerateLinks(dto, isAdmin.Succeeded));
+
+    var result = new ResourceCollection<AuthorDTO> { Values = dtos };
+    result.Links.Add(new DataHATEOAS(link: Url.Link("getAuthors", new { }), description: "self", method: "GET"));
+
+    if (isAdmin.Succeeded)
+    {
+      result.Links.Add(new DataHATEOAS(link: Url.Link("createAuthor", new { }), description: "create-author", method: "POST"));
+    }
+
+    return Ok(result);
   }
 
   [HttpGet("{id:int}", Name = "getAuthorById")]
+  [AllowAnonymous]
   public async Task<ActionResult<AuthorDTOWithBooks>> GetById(int id)
   {
     var author = await context.Authors
@@ -33,15 +60,24 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
 
     if (author == null) return NotFound();
 
-    return Ok(mapper.Map<AuthorDTOWithBooks>(author));
+    var dto = mapper.Map<AuthorDTOWithBooks>(author);
+    var isAdmin = await authorizationService.AuthorizeAsync(User, "isAdmin");
+
+    GenerateLinks(dto, isAdmin.Succeeded);
+    return Ok(dto);
   }
 
   [HttpGet("{name}", Name = "getAuthorByName")]
+  [AllowAnonymous]
   public async Task<ActionResult<List<AuthorDTO>>> GetByName(string name)
   {
     var authors = await context.Authors.Where(a => a.Name.Contains(name)).ToListAsync();
+    var dtos = mapper.Map<List<AuthorDTO>>(authors);
+    var isAdmin = await authorizationService.AuthorizeAsync(User, "isAdmin");
 
-    return Ok(mapper.Map<List<AuthorDTO>>(authors));
+    dtos.ForEach(dto => GenerateLinks(dto, isAdmin.Succeeded));
+
+    return Ok(dtos);
   }
 
   [HttpPost(Name = "createAuthor")]
