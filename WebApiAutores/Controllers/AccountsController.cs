@@ -17,12 +17,12 @@ namespace WebApiAutores.Controllers;
 [Route("api/accounts")]
 public class AccountsController(UserManager<IdentityUser> userManager,
     IConfiguration configuration, SignInManager<IdentityUser> signInManager,
-    IDataProtectionProvider dataProtectionProvider, HashService hashService) : ControllerBase
+    IDataProtectionProvider dataProtectionProvider) : ControllerBase
 {
   private readonly IDataProtector dataProtector = dataProtectionProvider.CreateProtector("unique_and_secrect_value");
 
 
-  [HttpPost("register")]
+  [HttpPost("register", Name = "registerUser")]
   public async Task<ActionResult<AuthenticationResponse>> Register(UserCredentials userCredentials)
   {
     var newUser = new IdentityUser { UserName = userCredentials.Email, Email = userCredentials.Email };
@@ -33,7 +33,7 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     return BadRequest(result.Errors);
   }
 
-  [HttpPost("login")]
+  [HttpPost("login", Name = "loginUser")]
   public async Task<ActionResult<AuthenticationResponse>> Login(UserCredentials userCredentials)
   {
     var result = await signInManager.PasswordSignInAsync(userCredentials.Email,
@@ -44,7 +44,7 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     return BadRequest("Failed to login");
   }
 
-  [HttpGet("refreshToken")]
+  [HttpGet("refreshToken", Name = "refreshToken")]
   [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   public async Task<ActionResult<AuthenticationResponse>> RefreshToken()
   {
@@ -94,7 +94,7 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     };
   }
 
-  [HttpPost("make-admin")]
+  [HttpPost("make-admin", Name = "makeAdmin")]
   public async Task<ActionResult> MakeAdmin(EditAdminDTO editAdminDTO)
   {
     var user = await userManager.FindByEmailAsync(editAdminDTO.Email);
@@ -104,7 +104,7 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     return NoContent();
   }
 
-  [HttpPost("remove-admin")]
+  [HttpPost("remove-admin", Name = "removeAdmin")]
   public async Task<ActionResult> RemoveAdmin(EditAdminDTO editAdminDTO)
   {
     var user = await userManager.FindByEmailAsync(editAdminDTO.Email);
@@ -114,32 +114,4 @@ public class AccountsController(UserManager<IdentityUser> userManager,
     return NoContent();
   }
 
-  [HttpGet("encrypt")]
-  public ActionResult Encrypt()
-  {
-    var plainText = "Encrypt text test";
-    var ciphertext = dataProtector.Protect(plainText);
-    var decryptedText = dataProtector.Unprotect(ciphertext);
-
-    return Ok(new
-    {
-      plainText = plainText,
-      ciphertext = ciphertext,
-      decryptedText = decryptedText
-    });
-  }
-
-  [HttpGet("hash/{plainText}")]
-  public ActionResult PerformHash(string plainText)
-  {
-    var result1 = hashService.Hash(plainText);
-    var result2 = hashService.Hash(plainText);
-
-    return Ok(new
-    {
-      PlainText = plainText,
-      Hash1 = result1,
-      Hash2 = result2
-    });
-  }
 }

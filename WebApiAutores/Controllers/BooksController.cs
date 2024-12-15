@@ -28,7 +28,7 @@ namespace WebApiAutores.Controllers
             return Ok(mapper.Map<BookDTOWithAuthors>(book));
         }
 
-        [HttpPost]
+        [HttpPost(Name = "createBook")]
         public async Task<ActionResult<BookDTO>> Post(CreateBookDTO createBookDTO)
         {
             var authorsId = await context.Authors
@@ -48,7 +48,7 @@ namespace WebApiAutores.Controllers
             return CreatedAtRoute("getBook", new { id = book.Id }, bookDTO);
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int}", Name = "updateBook")]
         public async Task<ActionResult> Put(int id, CreateBookDTO createBookDTO)
         {
             var bookDB = await context.Books
@@ -66,7 +66,7 @@ namespace WebApiAutores.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id:int}")]
+        [HttpPatch("{id:int}", Name = "patchBook")]
         public async Task<ActionResult> Patch(int id, JsonPatchDocument<PatchBookDTO> patchDocument)
         {
             if (patchDocument == null) return BadRequest();
@@ -87,7 +87,7 @@ namespace WebApiAutores.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int}", Name = "deleteBook")]
         public async Task<ActionResult> Delete(int id)
         {
             var book = await context.Books.FirstOrDefaultAsync(b => b.Id == id);

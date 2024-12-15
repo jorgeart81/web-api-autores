@@ -17,7 +17,7 @@ namespace WebApiAutores.Controllers
     {
         private async Task<bool> BookExists(int bookId) => await context.Books.AnyAsync(b => b.Id == bookId);
 
-        [HttpGet]
+        [HttpGet(Name = "getBookComments")]
         public async Task<ActionResult<List<CommentDTO>>> Get(int bookId)
         {
             if (!await BookExists(bookId)) return NotFound($"Book with ID {bookId} not found");
@@ -41,7 +41,7 @@ namespace WebApiAutores.Controllers
             return Ok(mapper.Map<CommentDTO>(comment));
         }
 
-        [HttpPost]
+        [HttpPost(Name = "createComment")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<CommentDTO>> Post(int bookId, CreateCommentDTO createCommentDTO)
         {
@@ -68,7 +68,7 @@ namespace WebApiAutores.Controllers
             return CreatedAtRoute("getComment", new { bookId, id = comment.Id }, commentDTO);
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int}", Name = "updateComment")]
         public async Task<ActionResult> Put(int bookId, int id, CreateCommentDTO createCommentDTO)
         {
             if (!await BookExists(bookId)) return NotFound($"Book with ID {bookId} not found");

@@ -15,7 +15,7 @@ namespace WebApiAutores.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = DefaultStrings.IsAdmin)]
 public class AuthorsController(ApplicationDBContext context, IMapper mapper) : ControllerBase
 {
-  [HttpGet]
+  [HttpGet(Name = "getAuthors")]
   [AllowAnonymous]
   public async Task<ActionResult<List<AuthorDTO>>> Get()
   {
@@ -36,7 +36,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
     return Ok(mapper.Map<AuthorDTOWithBooks>(author));
   }
 
-  [HttpGet("{name}")]
+  [HttpGet("{name}", Name = "getAuthorByName")]
   public async Task<ActionResult<List<AuthorDTO>>> GetByName(string name)
   {
     var authors = await context.Authors.Where(a => a.Name.Contains(name)).ToListAsync();
@@ -44,7 +44,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
     return Ok(mapper.Map<List<AuthorDTO>>(authors));
   }
 
-  [HttpPost]
+  [HttpPost(Name = "createAuthor")]
   public async Task<ActionResult<AuthorDTO>> Post(CreateAuthorDTO createAuthorDTO)
   {
     var author = mapper.Map<Author>(createAuthorDTO);
@@ -57,7 +57,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
     return CreatedAtRoute("getAuthorById", new { id = author.Id }, authorDTO);
   }
 
-  [HttpPut("{id:int}")]
+  [HttpPut("{id:int}", Name = "updateAuthor")]
   public async Task<ActionResult> Put(CreateAuthorDTO createAuthorDTO, int id)
   {
     var authorExists = await context.Authors.AnyAsync(a => a.Id == id);
@@ -72,7 +72,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
     return NoContent();
   }
 
-  [HttpDelete("{id:int}")]
+  [HttpDelete("{id:int}", Name = "deleteAuthor")]
   public async Task<ActionResult> Delete(int id)
   {
     var author = await context.Authors.FirstOrDefaultAsync(a => a.Id == id);
