@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.DTOs;
 using WebApiAutores.Entities;
+using WebApiAutores.Utilities;
 using WebApiAutores.Values;
 
 namespace WebApiAutores.Controllers;
@@ -16,42 +17,35 @@ namespace WebApiAutores.Controllers;
 public class AuthorsController(ApplicationDBContext context, IMapper mapper,
   IAuthorizationService authorizationService) : ControllerBase
 {
-  private void GenerateLinks(AuthorDTO authorDTO, bool isAdmin = false)
-  {
-    authorDTO.Links.Add(new DataHATEOAS(link: Url.Link("getAuthorById", new { id = authorDTO.Id }), description: "self", method: "GET"));
-    authorDTO.Links.Add(new DataHATEOAS(link: Url.Link("getAuthorByName", new { name = authorDTO.Name }), description: "self", method: "GET"));
-
-    if (isAdmin)
-    {
-      authorDTO.Links.Add(new DataHATEOAS(link: Url.Link("updateAuthor", new { id = authorDTO.Id }), description: "self", method: "PUT"));
-      authorDTO.Links.Add(new DataHATEOAS(link: Url.Link("deleteAuthor", new { id = authorDTO.Id }), description: "self", method: "DELETE"));
-    }
-  }
-
   [HttpGet(Name = "getAuthors")]
   [AllowAnonymous]
-  public async Task<ActionResult<ResourceCollection<AuthorDTO>>> Get()
+  public async Task<IActionResult> Get([FromQuery] bool includeHATEOAS = true)
   {
     var authors = await context.Authors.ToListAsync();
     var dtos = mapper.Map<List<AuthorDTO>>(authors);
-    var isAdmin = await authorizationService.AuthorizeAsync(User, "isAdmin");
 
-    dtos.ForEach(dto => GenerateLinks(dto, isAdmin.Succeeded));
-
-    var result = new ResourceCollection<AuthorDTO> { Values = dtos };
-    result.Links.Add(new DataHATEOAS(link: Url.Link("getAuthors", new { }), description: "self", method: "GET"));
-
-    if (isAdmin.Succeeded)
+    if (includeHATEOAS)
     {
-      result.Links.Add(new DataHATEOAS(link: Url.Link("createAuthor", new { }), description: "create-author", method: "POST"));
+      var isAdmin = await authorizationService.AuthorizeAsync(User, "isAdmin");
+      // dtos.ForEach(dto => GenerateLinks(dto, isAdmin.Succeeded));
+
+      var result = new ResourceCollection<AuthorDTO> { Values = dtos };
+      result.Links.Add(new DataHATEOAS(link: Url.Link("getAuthors", new { }), description: "self", method: "GET"));
+
+      if (isAdmin.Succeeded)
+      {
+        result.Links.Add(new DataHATEOAS(link: Url.Link("createAuthor", new { }), description: "create-author", method: "POST"));
+      }
+      return Ok(result);
     }
 
-    return Ok(result);
+    return Ok(dtos);
   }
 
   [HttpGet("{id:int}", Name = "getAuthorById")]
   [AllowAnonymous]
-  public async Task<ActionResult<AuthorDTOWithBooks>> GetById(int id)
+  [ServiceFilter(typeof(HATEOASAuthorFilterAttribute))]
+  public async Task<ActionResult<AuthorDTOWithBooks>> GetById(int id, [FromHeader] string? includeHATEOAS)
   {
     var author = await context.Authors
         .Include(a => a.AuthorsBooks)
@@ -61,9 +55,6 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper,
     if (author == null) return NotFound();
 
     var dto = mapper.Map<AuthorDTOWithBooks>(author);
-    var isAdmin = await authorizationService.AuthorizeAsync(User, "isAdmin");
-
-    GenerateLinks(dto, isAdmin.Succeeded);
     return Ok(dto);
   }
 
@@ -73,9 +64,6 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper,
   {
     var authors = await context.Authors.Where(a => a.Name.Contains(name)).ToListAsync();
     var dtos = mapper.Map<List<AuthorDTO>>(authors);
-    var isAdmin = await authorizationService.AuthorizeAsync(User, "isAdmin");
-
-    dtos.ForEach(dto => GenerateLinks(dto, isAdmin.Succeeded));
 
     return Ok(dtos);
   }

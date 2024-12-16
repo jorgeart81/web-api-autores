@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -11,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using WebApiAutores.Filters;
 using WebApiAutores.Middlewares;
 using WebApiAutores.Services;
+using WebApiAutores.Utilities;
 using WebApiAutores.Values;
 
 namespace WebApiAutores;
@@ -99,6 +101,10 @@ public class Startup
         builder.WithOrigins("").AllowAnyMethod().AllowAnyHeader();
       });
     });
+
+    services.AddTransient<LinksGenerator>();
+    services.AddTransient<HATEOASAuthorFilterAttribute>();
+    services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
   }
 
   public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
