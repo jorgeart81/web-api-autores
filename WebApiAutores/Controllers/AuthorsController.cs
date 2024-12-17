@@ -14,8 +14,7 @@ namespace WebApiAutores.Controllers;
 [ApiController]
 [Route("api/authors")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = DefaultStrings.IsAdmin)]
-public class AuthorsController(ApplicationDBContext context, IMapper mapper,
-  IAuthorizationService authorizationService) : ControllerBase
+public class AuthorsController(ApplicationDBContext context, IMapper mapper) : ControllerBase
 {
   [HttpGet(Name = "getAuthors")]
   [AllowAnonymous]
