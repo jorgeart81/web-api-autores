@@ -19,27 +19,11 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper,
 {
   [HttpGet(Name = "getAuthors")]
   [AllowAnonymous]
-  public async Task<IActionResult> Get([FromQuery] bool includeHATEOAS = true)
+  [ServiceFilter(typeof(HATEOASAuthorFilterAttribute))]
+  public async Task<ActionResult<List<AuthorDTO>>> Get([FromHeader] string? includeHATEOAS)
   {
     var authors = await context.Authors.ToListAsync();
-    var dtos = mapper.Map<List<AuthorDTO>>(authors);
-
-    if (includeHATEOAS)
-    {
-      var isAdmin = await authorizationService.AuthorizeAsync(User, "isAdmin");
-      // dtos.ForEach(dto => GenerateLinks(dto, isAdmin.Succeeded));
-
-      var result = new ResourceCollection<AuthorDTO> { Values = dtos };
-      result.Links.Add(new DataHATEOAS(link: Url.Link("getAuthors", new { }), description: "self", method: "GET"));
-
-      if (isAdmin.Succeeded)
-      {
-        result.Links.Add(new DataHATEOAS(link: Url.Link("createAuthor", new { }), description: "create-author", method: "POST"));
-      }
-      return Ok(result);
-    }
-
-    return Ok(dtos);
+    return Ok(mapper.Map<List<AuthorDTO>>(authors));
   }
 
   [HttpGet("{id:int}", Name = "getAuthorById")]
@@ -60,12 +44,11 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper,
 
   [HttpGet("{name}", Name = "getAuthorByName")]
   [AllowAnonymous]
-  public async Task<ActionResult<List<AuthorDTO>>> GetByName(string name)
+  [ServiceFilter(typeof(HATEOASAuthorFilterAttribute))]
+  public async Task<ActionResult<List<AuthorDTO>>> GetByName(string name, [FromHeader] string? includeHATEOAS)
   {
     var authors = await context.Authors.Where(a => a.Name.Contains(name)).ToListAsync();
-    var dtos = mapper.Map<List<AuthorDTO>>(authors);
-
-    return Ok(dtos);
+    return Ok(mapper.Map<List<AuthorDTO>>(authors));
   }
 
   [HttpPost(Name = "createAuthor")]
