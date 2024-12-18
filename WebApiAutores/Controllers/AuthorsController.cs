@@ -19,7 +19,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   [HttpGet(Name = "getAuthors")]
   [AllowAnonymous]
   [ServiceFilter(typeof(HATEOASAuthorFilterAttribute))]
-  public async Task<ActionResult<List<AuthorDTO>>> Get([FromHeader] string? includeHATEOAS)
+  public async Task<ActionResult<List<AuthorDTO>>> Get()
   {
     var authors = await context.Authors.ToListAsync();
     return Ok(mapper.Map<List<AuthorDTO>>(authors));
@@ -28,7 +28,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   [HttpGet("{id:int}", Name = "getAuthorById")]
   [AllowAnonymous]
   [ServiceFilter(typeof(HATEOASAuthorFilterAttribute))]
-  public async Task<ActionResult<AuthorDTOWithBooks>> GetById(int id, [FromHeader] string? includeHATEOAS)
+  public async Task<ActionResult<AuthorDTOWithBooks>> GetById(int id)
   {
     var author = await context.Authors
         .Include(a => a.AuthorsBooks)
@@ -44,7 +44,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   [HttpGet("{name}", Name = "getAuthorByName")]
   [AllowAnonymous]
   [ServiceFilter(typeof(HATEOASAuthorFilterAttribute))]
-  public async Task<ActionResult<List<AuthorDTO>>> GetByName(string name, [FromHeader] string? includeHATEOAS)
+  public async Task<ActionResult<List<AuthorDTO>>> GetByName(string name)
   {
     var authors = await context.Authors.Where(a => a.Name.Contains(name)).ToListAsync();
     return Ok(mapper.Map<List<AuthorDTO>>(authors));

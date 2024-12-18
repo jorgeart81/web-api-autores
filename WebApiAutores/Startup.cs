@@ -57,6 +57,7 @@ public class Startup
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen(c =>
     {
+      c.OperationFilter<AddHATEOASParameter>();
       c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
       {
         Name = "Authorization",
