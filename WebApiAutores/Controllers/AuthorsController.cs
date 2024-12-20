@@ -14,6 +14,7 @@ namespace WebApiAutores.Controllers;
 [ApiController]
 [Route("api/authors")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = DefaultStrings.IsAdmin)]
+[ApiConventionType(typeof(DefaultApiConventions))]
 public class AuthorsController(ApplicationDBContext context, IMapper mapper) : ControllerBase
 {
   [HttpGet(Name = "getAuthors")]
@@ -28,6 +29,7 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   [HttpGet("{id:int}", Name = "getAuthorById")]
   [AllowAnonymous]
   [ServiceFilter(typeof(HATEOASAuthorFilterAttribute))]
+  [ProducesResponseType(404)]
   public async Task<ActionResult<AuthorDTOWithBooks>> GetById(int id)
   {
     var author = await context.Authors
