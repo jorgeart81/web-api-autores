@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.DTOs;
 using WebApiAutores.Entities;
+using WebApiAutores.Utilities;
 
 namespace WebApiAutores.Controllers
 {
@@ -18,11 +19,14 @@ namespace WebApiAutores.Controllers
         private async Task<bool> BookExists(int bookId) => await context.Books.AnyAsync(b => b.Id == bookId);
 
         [HttpGet(Name = "getBookComments")]
-        public async Task<ActionResult<List<CommentDTO>>> Get(int bookId)
+        public async Task<ActionResult<List<CommentDTO>>> Get(int bookId, [FromQuery] PaginationDTO paginationDTO)
         {
             if (!await BookExists(bookId)) return NotFound($"Book with ID {bookId} not found");
 
-            var comments = await context.Comments.Where(c => c.BookId == bookId).ToListAsync();
+            var queryable = context.Comments.Where(c => c.BookId == bookId).AsQueryable();
+            await HttpContext.InsertPaginationParametersInHeader(queryable);
+
+            var comments = await queryable.OrderBy(c => c.Id).Pagination(paginationDTO).ToListAsync();
 
             return Ok(mapper.Map<List<CommentDTO>>(comments));
         }

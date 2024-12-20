@@ -20,9 +20,13 @@ public class AuthorsController(ApplicationDBContext context, IMapper mapper) : C
   [HttpGet(Name = "getAuthors")]
   [AllowAnonymous]
   [ServiceFilter(typeof(HATEOASAuthorFilterAttribute))]
-  public async Task<ActionResult<List<AuthorDTO>>> Get()
+  public async Task<ActionResult<List<AuthorDTO>>> Get([FromQuery] PaginationDTO paginationDTO)
   {
-    var authors = await context.Authors.ToListAsync();
+    var queryable = context.Authors.AsQueryable();
+    await HttpContext.InsertPaginationParametersInHeader(queryable);
+
+    var authors = await queryable.OrderBy(a => a.Name).Pagination(paginationDTO).ToListAsync();
+
     return Ok(mapper.Map<List<AuthorDTO>>(authors));
   }
 

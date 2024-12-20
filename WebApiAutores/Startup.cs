@@ -99,7 +99,10 @@ public class Startup
     {
       options.AddDefaultPolicy(builder =>
       {
-        builder.WithOrigins("").AllowAnyMethod().AllowAnyHeader();
+        builder.WithOrigins("")
+          .AllowAnyMethod()
+          .AllowAnyHeader()
+          .WithExposedHeaders(["total-number-records"]);
       });
     });
 
